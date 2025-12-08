@@ -11,7 +11,7 @@ app = Flask(__name__)
 # Config: tune these default limits
 DEFAULT_DEPTH = 4         # recursion depth -l
 DEFAULT_WAIT = 0.5        # wait between requests in seconds
-MAX_DURATION = 300        # max seconds to allow wget to run (safety)
+MAX_DURATION = 3000        # max seconds to allow wget to run (safety)
 MAX_DISK_BYTES = 500_000_000  # 500 MB per job (safety)
 
 def run_wget(target_url, outdir, depth=DEFAULT_DEPTH, wait=DEFAULT_WAIT, obey_robots=False):
@@ -42,7 +42,8 @@ def run_wget(target_url, outdir, depth=DEFAULT_DEPTH, wait=DEFAULT_WAIT, obey_ro
         target_url
     ]
     # Run with timeout
-    subprocess.run(cmd, check=True, timeout=MAX_DURATION)
+    subprocess.run(cmd, check=True, timeout=MAX_DURATION, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    print(result.stdout.decode())
 
 def dir_size_bytes(path: Path):
     total = 0
@@ -112,4 +113,6 @@ def download_site():
             pass
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+import os
+port = int(os.environ.get("PORT", 8080))
+app.run(host="0.0.0.0", port=port)
