@@ -1,15 +1,10 @@
 FROM python:3.11-slim
 
-# install wget and zip tools
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends wget unzip zip \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget zip
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
 
-COPY app.py .
+RUN pip install -r requirements.txt
 
-EXPOSE 8080
-CMD ["python", "app.py"]
+CMD ["waitress-serve", "--listen=0.0.0.0:8080", "app:app"]
